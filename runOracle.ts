@@ -22,11 +22,11 @@ import {getRunner, nanoid} from "./tests/common";
 import { SwitchboardBuffer } from "./target/types/switchboard_buffer";
 
 const main = async () => {
-    // const testEnvironment = await SwitchboardTestEnvironment.create(
-    //     "/Users/mac/.config/solana/id.json"
-    // );
-    // testEnvironment.writeAll(".switchboard");
-    // return
+    const testEnvironment = await SwitchboardTestEnvironment.create(
+        "/Users/mac/.config/solana/id.json"
+    );
+    testEnvironment.writeAll(".switchboard");
+    return
     const aggregatorIn = Keypair.generate();
     writeFileSync("aggregator.secret",`[${aggregatorIn.secretKey.toString()}]`,)
     writeFileSync("aggregator.key",`${aggregatorIn.publicKey.toString()}`,)
