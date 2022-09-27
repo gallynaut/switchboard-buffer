@@ -14,6 +14,7 @@ import {
 import { SwitchboardBuffer } from "../target/types/switchboard_buffer";
 import { OracleJob } from "@switchboard-xyz/common";
 import chalk from "chalk";
+import { SystemProgram, SYSVAR_RENT_PUBKEY } from "@solana/web3.js";
 
 const CHECK_ICON = chalk.green("\u2714");
 const FAILED_ICON = chalk.red("\u2717");
@@ -64,30 +65,34 @@ describe("switchboard-buffer", () => {
       );
     }
 
-    if (switchboard.oracle) {
-      let oracleState = await switchboard.oracle.loadData();
-
-      if (!payer.publicKey.equals(oracleState.oracleAuthority)) {
-        throw new Error(
-          `Oracle authority mismatch, received ${payer.publicKey}, expected ${oracleState.oracleAuthority}`
-        );
-      }
-
-      let counter = 0;
-      while (
-        Date.now() / 1000 -
-          (await switchboard.oracle.loadData()).lastHeartbeat.toNumber() >
-        30
-      ) {
-        if (counter > 30) {
-          throw new Error(`Failed to find any active oracles heartbeating`);
-        }
-        await sleep(1000);
-        counter++;
-      }
-
-      console.log(CHECK_ICON, `Successfully detected oracle heartbeat`);
+    if (!switchboard.oracle) {
+      throw new Error(`Failed to detect switchboard oracle`);
     }
+
+    let oracleState = await switchboard.oracle.loadData();
+
+    if (!payer.publicKey.equals(oracleState.oracleAuthority)) {
+      throw new Error(
+        `Oracle authority mismatch, received ${payer.publicKey}, expected ${oracleState.oracleAuthority}`
+      );
+    }
+
+    // Switchboard oracle takes ~30sec to initialize. We need to await our oracle to start heartbeating
+    // before we can start any test.
+    let counter = 0;
+    while (
+      Date.now() / 1000 -
+        (await switchboard.oracle.loadData()).lastHeartbeat.toNumber() >
+      30
+    ) {
+      if (counter > 45) {
+        throw new Error(`Failed to find any active oracles heartbeating`);
+      }
+      await sleep(1000);
+      counter++;
+    }
+
+    console.log(CHECK_ICON, `Successfully detected oracle heartbeat`);
   });
 
   it("create buffer", async () => {
@@ -96,13 +101,14 @@ describe("switchboard-buffer", () => {
     const jobAccount = await JobAccount.create(switchboard.program, {
       data: Buffer.from(
         OracleJob.encodeDelimited(
-          OracleJob.create({
+          OracleJob.fromObject({
             tasks: [
-              OracleJob.Task.create({
-                httpTask: OracleJob.HttpTask.create({
-                  url: "http://host.docker.internal:8080/event",
-                }),
-              }),
+              {
+                httpTask: {
+                  // url: "http://host.docker.internal:8080/event",
+                  url: "https://jsonplaceholder.typicode.com/todos/1",
+                },
+              },
             ],
           })
         ).finish()
@@ -148,28 +154,47 @@ describe("switchboard-buffer", () => {
     );
   });
 
-  it("buffer open round", async () => {
+  it("push buffer test", async () => {
     if (!bufferAccount) {
       throw new Error(`No BufferRelayerAccount to reference`);
     }
 
-    const resultPromise = awaitCallback(bufferAccount, 30);
+    // call openRound
+    bufferAccount
+      .openRound()
+      .then((sig) =>
+        console.log(
+          CHECK_ICON,
+          `BufferRelayerAccount open round called successfully: https://explorer.solana.com/tx/${sig}?cluster=custom&customUrl=http%3A%2F%2Flocalhost%3A8899`
+        )
+      );
 
-    const txnSignature = await bufferAccount.openRound();
-    console.log(
-      CHECK_ICON,
-      `BufferRelayerAccount open round called successfully: https://explorer.solana.com/tx/${txnSignature}?cluster=custom&customUrl=http%3A%2F%2Flocalhost%3A8899`
+    const buf = await awaitCallback(bufferAccount, 30_000);
+
+    console.log(`Current Buffer Result: [${new Uint8Array(buf).toString()}]`);
+
+    const signature = await program.methods
+      .pushBuffer()
+      .accounts({
+        admin: payer.publicKey,
+        eventBufferRelayer: bufferAccount.publicKey,
+        systemProgram: SystemProgram.programId,
+        rent: SYSVAR_RENT_PUBKEY,
+      })
+      .rpc()
+      .catch((error) => {
+        console.error(error);
+        throw error;
+      });
+
+    await sleep(2000);
+
+    const logs = await provider.connection.getParsedTransaction(
+      signature,
+      "confirmed"
     );
 
-    const result = await resultPromise;
-    if (!result || result.byteLength === 0) {
-      throw new Error(`Failed to yield a BufferRelayerAccount result`);
-    }
-
-    console.log(
-      CHECK_ICON,
-      `BufferRelayerAccount result: [${new Uint8Array(result)}]`
-    );
+    console.log(JSON.stringify(logs?.meta?.logMessages, undefined, 2));
   });
 });
 
@@ -194,7 +219,7 @@ async function awaitCallback(
               "BufferRelayerAccountData",
               accountInfo.data
             );
-            const bufResult = buf.result as Buffer;
+            const bufResult = Buffer.from(buf.result);
             if (bufResult.byteLength > 0) {
               resolve(bufResult);
             }
