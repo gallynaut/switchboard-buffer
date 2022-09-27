@@ -3,66 +3,67 @@ seeds = true
 skip-lint = false
 
 [programs.localnet]
-switchboard_buffer = "9PcDy77KoSA9bNNuq7jQMczSmJg8rPFyAT9Ctt2APu3Y"
+switchboard_buffer = "41C9dUPbPdjgFj8YRYZ9Jok6itZ27AVan1Y9YGUEodqi"
 
 [programs.devnet]
-switchboard_buffer = "9PcDy77KoSA9bNNuq7jQMczSmJg8rPFyAT9Ctt2APu3Y"
+switchboard_buffer = "41C9dUPbPdjgFj8YRYZ9Jok6itZ27AVan1Y9YGUEodqi"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
 cluster = "localnet"
-wallet = "/Users/mac/.config/solana/id.json"
+wallet = "./secrets/payer-keypair.json"
 
 [scripts]
-test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/switchboard-buffer.ts"
+test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/*.test.ts"
 switch = "yarn run ts-node -P ./tsconfig.json runOracle.ts"
 server = "yarn run ts-node -P ./tsconfig.json server.ts"
 
+[test]
+startup_wait = 10000
 
 [test.validator]
 url = "https://devnet.genesysgo.net/"
 
-#[[test.validator.clone]] # programID
-#address = "2TfB33aLaneQb5TNVwyDz3jSZXS6jdW2ARw1Dgf84XCG"
-#
-#[[test.validator.clone]] # idlAddress
-#address = "CKwZcshn4XDvhaWVH9EXnk3iu19t6t5xP2Sy2pD6TRDp"
-#
-#[[test.validator.clone]] # programState
-#address = "BYM81n8HvTJuqZU1PmTVcwZ9G8uoji7FKM6EaPkwphPt"
-#
-#[[test.validator.clone]] # switchboardVault
-#address = "FVLfR6C2ckZhbSwBzZY4CX7YBcddUSge5BNeGQv5eKhy"
-#
-#[[test.validator.clone]] # tokenWallet
-#address = "9mHKsQgdQGUYtZEcve2H5RMyvymyEeAcJJiHzvx6JSeA"
-#
-#[[test.validator.clone]] # queue
-#address = "58ndtWvbcfwmvCVpQGpXUrffPxZmEcKL4xvB8XkMDw5A"
-#
-#[[test.validator.clone]] # queueAuthority
-#address = "3rGrMUKPVp8NzxC7pwxcj4hR3aHmCyKuFFVngH23UYTJ"
-#
-#[[test.validator.clone]] # queueBuffer
-#address = "HtxdQh6CqcMCQfkWaywUhiY4QPjMEFNKwuVEBmrEZX75"
-#
-#[[test.validator.clone]] # crank
-#address = "2wW817yPVJC4SVcMHhjGLc6uGpTXfdweq4z4X3fDBx7q"
-#
-#[[test.validator.clone]] # crankBuffer
-#address = "GBjCv9ux69DCuaUnuDaRBk7RqWs2BhQB7tXxEL2AzYyy"
-#
-#[[test.validator.clone]] # oracle
-#address = "97dSr9qJ45NgfnJ7E1QzB5U8X9QAaqunibAbJVHDt1bq"
-#
-#[[test.validator.clone]] # oracleAuthority
-#address = "3rGrMUKPVp8NzxC7pwxcj4hR3aHmCyKuFFVngH23UYTJ"
-#
-#[[test.validator.clone]] # oracleEscrow
-#address = "Hy8KS7hSgHmBv7rxr2tkcgq8SrMar6NUvvhjRbZvwENt"
-#
-#[[test.validator.clone]] # oraclePermissions
-#address = "Gs9ZxMG1sLM6JtoUpdPApErP6A4B4gLKPSn3XopMTswa"
-#
+[[test.validator.clone]] # programID
+address = "2TfB33aLaneQb5TNVwyDz3jSZXS6jdW2ARw1Dgf84XCG"
+
+[[test.validator.clone]] # idlAddress
+address = "CKwZcshn4XDvhaWVH9EXnk3iu19t6t5xP2Sy2pD6TRDp"
+
+[[test.validator.clone]] # programState
+address = "BYM81n8HvTJuqZU1PmTVcwZ9G8uoji7FKM6EaPkwphPt"
+
+[[test.validator.clone]] # switchboardVault
+address = "FVLfR6C2ckZhbSwBzZY4CX7YBcddUSge5BNeGQv5eKhy"
+
+[[test.validator.clone]] # tokenWallet
+address = "FfhYTfTGCb25CwY8FSv5pz9E4VURa568ezb1hYeGYfMn"
+
+[[test.validator.clone]] # queue
+address = "9jcT6pmE2ZYE2EvNt8b1fGSg2xDtiB2y64z4XzivFM1G"
+
+[[test.validator.clone]] # queueAuthority
+address = "7jnxn9mKXHQe3DgsU87wCh393mb86gd1neG8k4M7JssN"
+
+[[test.validator.clone]] # queueBuffer
+address = "39L5fX6qkh6s616pq4f5A3h1mCmkEt48PoGC3Qpywcts"
+
+[[test.validator.clone]] # crank
+address = "FdAXEmSVryHS7xaZwtmmtE3FhKfqSNzQcqRQU3oLc2ot"
+
+[[test.validator.clone]] # crankBuffer
+address = "8ZSSR2nQDJ5y4oU3g2xBs7BVCikSTgPTaMfnprUyNmD4"
+
+[[test.validator.clone]] # oracle
+address = "HsdRD9E9g7tA9F2hz2T6j2ihQTcsHJZJi711pdjAN6zn"
+
+[[test.validator.clone]] # oracleAuthority
+address = "7jnxn9mKXHQe3DgsU87wCh393mb86gd1neG8k4M7JssN"
+
+[[test.validator.clone]] # oracleEscrow
+address = "DTLcU2rGX823xqkj5EVaafUgXAu7iiXtkSgyLardK2Ur"
+
+[[test.validator.clone]] # oraclePermissions
+address = "Dv1EWSGyVPcNVVTQdqtnutXh4ofuggfNwHA7WaS48Kts"

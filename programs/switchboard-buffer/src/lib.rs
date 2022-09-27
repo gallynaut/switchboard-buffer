@@ -1,11 +1,10 @@
 use anchor_lang::prelude::*;
 
-mod turn_crank;
 mod push_buffer;
+mod turn_crank;
 
-use turn_crank::*;
 use push_buffer::*;
-
+use turn_crank::*;
 
 #[error_code]
 pub enum MyErrorCode {
@@ -24,8 +23,7 @@ pub enum MyBufferErrorCode {
     BadGameSchema,
 }
 
-
-declare_id!("9PcDy77KoSA9bNNuq7jQMczSmJg8rPFyAT9Ctt2APu3Y");
+declare_id!("41C9dUPbPdjgFj8YRYZ9Jok6itZ27AVan1Y9YGUEodqi");
 
 #[program]
 pub mod switchboard_buffer {
@@ -36,15 +34,11 @@ pub mod switchboard_buffer {
     }
 
     #[access_control(ctx.accounts.validate(&ctx))]
-    pub fn turn_crank(
-        ctx: Context<TurnCrank>,
-    ) -> Result<()> {
+    pub fn turn_crank(ctx: Context<TurnCrank>) -> Result<()> {
         turn_crank::turn_crank(ctx)
     }
 
-    pub fn push_buffer(
-        ctx: Context<PushBuffer>,
-    ) -> Result<()> {
+    pub fn push_buffer(ctx: Context<PushBuffer>) -> Result<()> {
         push_buffer::push_buffer(ctx)
     }
 }
