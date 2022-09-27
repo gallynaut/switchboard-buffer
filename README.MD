@@ -35,6 +35,14 @@ Finally, copy the accounts from `.switchboard/Anchor.switchboard.toml` to
 
 ## Run
 
+In a separate terminal, start the server
+
+```bash
+ts-node server
+```
+
+And start the test
+
 ```bash
 yarn test
 # sbv2 solana anchor test --keypair ./secrets/payer-keypair.json --nodeImage dev-v2-09-19-22
